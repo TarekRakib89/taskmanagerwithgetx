@@ -12,10 +12,13 @@ class TaskController extends GetxController {
       TaskCountSummaryListModel();
   bool _getNewTaskInProgress = false;
   bool _getTaskCountSummaryInProgress = false;
+  bool _createTaskInProgress = false;
 
   bool get getNewTaskInProgress => _getNewTaskInProgress;
   bool get getTaskCountSummaryProgress => _getTaskCountSummaryInProgress;
+  bool get createTaskInProgress => _createTaskInProgress;
   TaskListModel get taskModelList => _taskListModel;
+
   TaskCountSummaryListModel get taskCountSummaryListModel =>
       _taskCountSummaryListModel;
 
@@ -44,5 +47,26 @@ class TaskController extends GetxController {
       _getTaskCountSummaryInProgress = false;
       update();
     }
+  }
+
+  Future<bool> createTask(String title, String description) async {
+    _createTaskInProgress = true;
+    update();
+
+    final NetworkResponse response = await NetworkCaller().postRequest(
+      Urls.createNewTask,
+      body: {
+        "title": title,
+        "description": description,
+        "status": "New",
+      },
+    );
+    _createTaskInProgress = false;
+    update();
+
+    if (response.isSuccess) {
+      return true;
+    }
+    return false;
   }
 }

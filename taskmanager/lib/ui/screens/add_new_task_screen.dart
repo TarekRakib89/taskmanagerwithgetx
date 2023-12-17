@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:taskmanager/data/network_caller/network_caller.dart';
 import 'package:taskmanager/data/network_caller/network_response.dart';
 import 'package:taskmanager/data/utility/urls.dart';
+import 'package:taskmanager/ui/controllers/task_controller.dart';
 import 'package:taskmanager/ui/widgets/body_background.dart';
 import 'package:taskmanager/ui/widgets/profile_summary_card.dart';
 import 'package:taskmanager/ui/widgets/snack_message.dart';
@@ -19,6 +21,7 @@ class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
       TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   bool _createTaskInProgress = false;
+  TaskController taskController = Get.find<TaskController>();
 
   @override
   Widget build(BuildContext context) {
@@ -76,19 +79,26 @@ class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
                             },
                           ),
                           const SizedBox(height: 16),
-                          SizedBox(
-                            width: double.infinity,
-                            child: Visibility(
-                              visible: _createTaskInProgress == false,
-                              replacement: const Center(
-                                  child: CircularProgressIndicator()),
-                              child: ElevatedButton(
-                                onPressed: createTask,
-                                child: const Icon(
-                                    Icons.arrow_circle_right_outlined),
+                          GetBuilder<TaskController>(builder: (taskController) {
+                            return SizedBox(
+                              width: double.infinity,
+                              child: Visibility(
+                                visible: taskController.createTaskInProgress ==
+                                    false,
+                                replacement: const Center(
+                                    child: CircularProgressIndicator()),
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    createTask();
+                                    taskController
+                                        .getTaskList(Urls.getNewTasks);
+                                  },
+                                  child: const Icon(
+                                      Icons.arrow_circle_right_outlined),
+                                ),
                               ),
-                            ),
-                          ),
+                            );
+                          }),
                         ],
                       ),
                     ),
@@ -104,24 +114,11 @@ class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
 
   Future<void> createTask() async {
     if (_formKey.currentState!.validate()) {
-      _createTaskInProgress = true;
-      if (mounted) {
-        setState(() {});
-      }
-      final NetworkResponse response = await NetworkCaller().postRequest(
-        Urls.createNewTask,
-        body: {
-          "title": _subjectTEController.text.trim(),
-          "description": _descriptionTEController.text.trim(),
-          "status": "New",
-        },
-      );
       _createTaskInProgress = false;
-      if (mounted) {
-        setState(() {});
-      }
+      bool createTask = await taskController.createTask(
+          _subjectTEController.text, _descriptionTEController.text);
 
-      if (response.isSuccess) {
+      if (createTask) {
         _subjectTEController.clear();
         _descriptionTEController.clear();
         if (mounted) {

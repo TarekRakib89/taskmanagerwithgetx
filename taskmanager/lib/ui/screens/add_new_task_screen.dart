@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:taskmanager/data/network_caller/network_caller.dart';
-import 'package:taskmanager/data/network_caller/network_response.dart';
+
 import 'package:taskmanager/data/utility/urls.dart';
 import 'package:taskmanager/ui/controllers/task_controller.dart';
 import 'package:taskmanager/ui/widgets/body_background.dart';
@@ -20,7 +19,7 @@ class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
   final TextEditingController _descriptionTEController =
       TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  bool _createTaskInProgress = false;
+
   TaskController taskController = Get.find<TaskController>();
 
   @override
@@ -114,7 +113,6 @@ class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
 
   Future<void> createTask() async {
     if (_formKey.currentState!.validate()) {
-      _createTaskInProgress = false;
       bool createTask = await taskController.createTask(
           _subjectTEController.text, _descriptionTEController.text);
 

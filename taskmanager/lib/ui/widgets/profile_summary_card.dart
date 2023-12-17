@@ -18,7 +18,7 @@ class ProfileSummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final AuthController authController = Get.find<AuthController>();
+    Get.find<AuthController>();
     String imageBytes = AuthController.user?.photo ?? '';
     Uint8List bytes = base64.decode(imageBytes.split(',').last);
 
